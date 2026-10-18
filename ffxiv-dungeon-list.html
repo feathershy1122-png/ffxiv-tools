@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#15132c">
+  <title>副本列表｜FF14 便利工具箱</title>
+  <style>
+    :root{color-scheme:dark;--bg:#100e22;--panel:rgba(32,27,63,.92);--line:rgba(224,188,255,.18);--text:#fff9ff;--muted:#b9accb;--gold:#ffd36f;--pink:#ff8bd4;--blue:#82d9ff;--green:#81e4bc;--shadow:0 24px 80px rgba(0,0,0,.3)}
+    *{box-sizing:border-box}body{margin:0;min-width:320px;color:var(--text);font-family:"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif;line-height:1.55;background:radial-gradient(circle at 8% 2%,rgba(161,86,196,.28),transparent 29%),radial-gradient(circle at 94% 12%,rgba(55,123,194,.2),transparent 27%),linear-gradient(160deg,#100e22,#171536 58%,#0e0c1e)}
+    body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.25;background-image:radial-gradient(rgba(255,211,111,.28) 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(to bottom,#000,transparent 72%)}
+    button,input{font:inherit}.page{position:relative;width:min(1120px,calc(100% - 28px));margin:auto;padding:22px 0 54px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:34px}.brand{display:flex;gap:12px;align-items:center}.mark{display:grid;place-items:center;width:44px;height:44px;border:1px solid rgba(255,211,111,.54);border-radius:15px;color:var(--gold);background:rgba(122,75,126,.3);font-size:23px}.brand small{display:block;color:var(--gold);font-size:10px;letter-spacing:.18em;font-weight:700}.brand strong{display:block;font-size:16px}.back{padding:8px 12px;border:1px solid rgba(130,217,255,.22);border-radius:999px;color:var(--blue);font-size:12px;text-decoration:none}.hero{margin-bottom:22px}.eyebrow{margin:0 0 7px;color:var(--gold);font-size:11px;letter-spacing:.16em;font-weight:800}.hero h1{margin:0 0 10px;font-size:clamp(34px,6vw,56px);line-height:1.06;letter-spacing:-.05em}.hero p{max-width:820px;margin:0;color:var(--muted);font-size:14px}.panel{padding:18px;border:1px solid var(--line);border-radius:22px;background:rgba(28,24,57,.8);box-shadow:var(--shadow)}.panel-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px}.panel-heading h2{margin:0;font-size:18px}.panel-heading p{margin:3px 0 0;color:var(--muted);font-size:12px}.total{white-space:nowrap;padding:7px 10px;border:1px solid rgba(255,211,111,.26);border-radius:999px;color:var(--gold);background:rgba(255,211,111,.06);font-size:11px}.choice-row{display:flex;flex-wrap:wrap;gap:8px}.choice{padding:9px 14px;border:1px solid rgba(224,188,255,.2);border-radius:12px;color:#eadff5;background:rgba(255,255,255,.04);cursor:pointer;transition:transform .15s ease,border-color .15s ease,background .15s ease}.choice:hover,.choice:focus-visible{border-color:rgba(255,211,111,.66);outline:none;transform:translateY(-1px)}.choice.active{border-color:rgba(255,211,111,.78);color:#241a35;background:linear-gradient(135deg,#ffd36f,#ff9cd9);font-weight:800}.toolbar{display:flex;align-items:center;gap:12px;margin:18px 0}.search-label{color:var(--gold);font-size:12px;font-weight:800;white-space:nowrap}.search{width:min(360px,100%);padding:9px 12px;border:1px solid rgba(224,188,255,.2);border-radius:12px;color:var(--text);background:rgba(255,255,255,.06);outline:none}.search:focus{border-color:rgba(130,217,255,.7);box-shadow:0 0 0 3px rgba(130,217,255,.1)}.source-note{margin-left:auto;color:var(--muted);font-size:11px}.source-note a{color:var(--blue)}.category-list{display:grid;gap:16px}.category{overflow:hidden;border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,rgba(40,32,77,.92),rgba(21,19,49,.9));box-shadow:var(--shadow)}.category-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid rgba(224,188,255,.13);background:rgba(255,255,255,.025)}.category-head h2{margin:0;color:var(--gold);font-size:17px}.category-count{color:var(--muted);font-size:11px}.dungeon-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:14px 18px 18px;margin:0;list-style:none}.dungeon-item{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;padding:10px 11px;border:1px solid rgba(224,188,255,.12);border-radius:11px;background:rgba(255,255,255,.035)}.dungeon-name{min-width:0;color:#eee6f6;font-size:13px;overflow-wrap:anywhere}.item-meta{display:flex;align-items:center;gap:7px;flex:0 0 auto}.level{color:var(--blue);font-size:10px;white-space:nowrap}.status{padding:3px 6px;border-radius:999px;font-size:10px;white-space:nowrap}.status.complete{color:#d8f9eb;background:rgba(71,142,121,.3)}.status.incomplete{color:#d8cde5;background:rgba(255,255,255,.08)}.empty{padding:24px;border:1px dashed rgba(224,188,255,.23);border-radius:16px;color:var(--muted);text-align:center;font-size:13px}.notice{margin-top:18px;padding:14px 16px;border:1px solid rgba(129,228,188,.23);border-radius:16px;color:#d8f9eb;background:rgba(71,142,121,.11);font-size:12px}.notice strong{color:var(--green)}.foot{margin-top:22px;color:var(--muted);font-size:11px}.foot a{color:var(--blue)}
+    @media(max-width:760px){.page{width:min(100% - 20px,600px);padding-top:14px}.topbar{margin-bottom:24px}.brand small{font-size:8px}.brand strong{font-size:14px}.back{font-size:11px;padding:7px 9px}.toolbar{display:block}.search-label{display:block;margin-bottom:7px}.search{width:100%}.source-note{display:block;margin:9px 0 0}.dungeon-list{grid-template-columns:1fr;padding:12px}.category-head{padding:14px}.dungeon-item{align-items:flex-start}}
+    @media(max-width:430px){.panel{padding:14px}.choice{flex:1;text-align:center}.panel-heading{display:block}.total{display:inline-flex;margin-top:9px}.dungeon-item{display:block}.item-meta{margin-top:6px}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar"><div class="brand"><div class="mark">✦</div><div><small>FINAL FANTASY XIV</small><strong>個人快速查詢工具箱</strong></div></div><a class="back" href="index.html">返回工具箱</a></header>
+    <section class="hero"><p class="eyebrow">FF14 CONTENT INDEX</p><h1>副本列表</h1><p>依版本整理試算表中的副本、討伐殲滅戰、團隊任務與大型任務；保留文檔中的 TC 繁中名稱、等級與完成狀態。</p></section>
+
+    <section class="panel">
+      <div class="panel-heading"><div><h2>選擇版本</h2><p id="versionHint">2版</p></div><div class="total" id="totalCount">0 個項目</div></div>
+      <div class="choice-row" id="versionChoices"></div>
+    </section>
+
+    <div class="toolbar"><label class="search-label" for="searchInput">搜尋副本</label><input class="search" id="searchInput" type="search" placeholder="輸入名稱關鍵字"><span class="source-note">資料來源：<a href="https://docs.google.com/spreadsheets/d/1RUmLWueCbewo4CG0DZqWqC9sUmdsYlB3_052mUX_gyA/edit?gid=350581232#gid=350581232" target="_blank" rel="noreferrer">人工校對試算表</a></span></div>
+
+    <section class="category-list" id="categoryList"></section>
+    <div class="notice"><strong>資料說明：</strong>名稱、版本列表、分類、等級與完成狀態依照提供的試算表保留；「絕殲滅戰」分類依需求排除。</div>
+    <p class="foot"><a href="index.html">返回 FF14 便利工具箱</a> · 本頁為玩家製作的非官方查詢工具。</p>
+  </main>
+
+  <script src="ffxiv-dungeon-list-data.js"></script>
+  <script>
+    (() => {
+      const data = window.FFXIV_DUNGEON_LIST_DATA;
+      const state = {versionId:data[0].id, query:""};
+      const versionChoices = document.getElementById("versionChoices");
+      const versionHint = document.getElementById("versionHint");
+      const totalCount = document.getElementById("totalCount");
+      const categoryList = document.getElementById("categoryList");
+      const searchInput = document.getElementById("searchInput");
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, character => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[character]));
+      }
+      function currentVersion() { return data.find(version => version.id === state.versionId) || data[0]; }
+      function allItems(version) { return version.categories.flatMap(category => category.items); }
+
+      function renderVersions() {
+        versionChoices.innerHTML = data.map(version => '<button class="choice ' + (version.id === state.versionId ? "active" : "") + '" type="button" data-version="' + version.id + '" aria-pressed="' + (version.id === state.versionId) + '">' + escapeHtml(version.label) + '</button>').join("");
+        versionHint.textContent = currentVersion().label;
+      }
+
+      function renderCategories() {
+        const version = currentVersion();
+        const query = state.query.trim().toLocaleLowerCase();
+        const visibleCategories = version.categories.map(category => ({...category, items:category.items.filter(item => !query || item.name.toLocaleLowerCase().includes(query))})).filter(category => category.items.length);
+        const items = allItems(version);
+        totalCount.textContent = query ? visibleCategories.reduce((count, category) => count + category.items.length, 0) + " / " + items.length + " 個項目" : items.length + " 個項目";
+        if (!visibleCategories.length) {
+          categoryList.innerHTML = '<div class="empty">找不到符合的副本名稱。</div>';
+          return;
+        }
+        categoryList.innerHTML = visibleCategories.map(category => {
+          const completeCount = category.items.filter(item => item.complete).length;
+          return '<section class="category"><div class="category-head"><h2>' + escapeHtml(category.name) + '</h2><span class="category-count">' + completeCount + ' / ' + category.items.length + ' 已完成</span></div><ul class="dungeon-list">' + category.items.map(item => '<li class="dungeon-item"><span class="dungeon-name">' + escapeHtml(item.name) + '</span><span class="item-meta"><span class="level">Lv.' + item.level + '</span><span class="status ' + (item.complete ? "complete" : "incomplete") + '">' + (item.complete ? "已完成" : "未完成") + '</span></span></li>').join("") + '</ul></section>';
+        }).join("");
+      }
+
+      function render() { renderVersions(); renderCategories(); }
+
+      document.addEventListener("click", event => {
+        const button = event.target.closest("[data-version]");
+        if (!button) return;
+        state.versionId = button.dataset.version;
+        render();
+      });
+      searchInput.addEventListener("input", event => { state.query = event.target.value; renderCategories(); });
+      render();
+    })();
+  </script>
+</body>
+</html>
