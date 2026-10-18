@@ -15,6 +15,7 @@
   </style>
   <style>
     .dungeon-item{cursor:pointer}.check-wrap{display:inline-flex;align-items:center;gap:6px}.complete-toggle{appearance:none;width:18px;height:18px;margin:0;border:1px solid rgba(130,217,255,.55);border-radius:5px;background:rgba(255,255,255,.06);cursor:pointer}.complete-toggle:checked{border-color:var(--green);background:var(--green)}.complete-toggle:checked:after{content:"✓";display:block;color:#142b27;font-size:13px;font-weight:900;line-height:16px;text-align:center}.complete-toggle:focus-visible{outline:3px solid rgba(130,217,255,.3);outline-offset:2px}
+    .category-actions{display:flex;align-items:center;gap:9px;flex:0 0 auto}.category-toggle{padding:4px 8px;border:1px solid rgba(130,217,255,.25);border-radius:999px;color:var(--blue);background:rgba(130,217,255,.06);font-size:10px;cursor:pointer}.category-toggle:hover,.category-toggle:focus-visible{border-color:rgba(130,217,255,.7);outline:none;background:rgba(130,217,255,.13)}
   </style>
 </head>
 <body>
@@ -58,7 +59,7 @@
       const cacheKey = "ffxiv-dungeon-list-completion-v1";
       let completionCache = {};
       try { completionCache = JSON.parse(window.localStorage.getItem(cacheKey) || "{}") || {}; } catch (error) { completionCache = {}; }
-      const state = {versionId:data[0].id, query:""};
+      const state = {versionId:data[0].id, query:"", collapsedCategories:{}};
       const versionChoices = document.getElementById("versionChoices");
       const versionHint = document.getElementById("versionHint");
       const totalCount = document.getElementById("totalCount");
@@ -120,11 +121,22 @@
         }
         categoryList.innerHTML = visibleCategories.map(category => {
           const completeCount = category.items.filter(item => isComplete(item.key, item.complete)).length;
-          return '<section class="category"><div class="category-head"><h2>' + escapeHtml(category.name) + '</h2><span class="category-count">' + completeCount + ' / ' + category.items.length + ' 已完成</span></div><div class="dungeon-list">' + category.items.map(item => { const checked = isComplete(item.key, item.complete); return '<label class="dungeon-item"><span class="dungeon-name">' + escapeHtml(item.name) + '</span><span class="item-meta"><span class="level">Lv.' + item.level + '</span><span class="check-wrap"><input class="complete-toggle" type="checkbox" data-complete-key="' + escapeHtml(item.key) + '"' + (checked ? ' checked' : '') + ' aria-label="標記 ' + escapeHtml(item.name) + ' 為已完成"><span class="status ' + (checked ? "complete" : "incomplete") + '">' + (checked ? "已完成" : "未完成") + '</span></span></span></label>'; }).join("") + '</div></section>';
+          const categoryKey = version.id + "::" + category.name;
+          const collapsed = Boolean(state.collapsedCategories[categoryKey]);
+          const itemsHtml = collapsed ? "" : '<div class="dungeon-list">' + category.items.map(item => { const checked = isComplete(item.key, item.complete); return '<label class="dungeon-item"><span class="dungeon-name">' + escapeHtml(item.name) + '</span><span class="item-meta"><span class="level">Lv.' + item.level + '</span><span class="check-wrap"><input class="complete-toggle" type="checkbox" data-complete-key="' + escapeHtml(item.key) + '"' + (checked ? ' checked' : '') + ' aria-label="標記 ' + escapeHtml(item.name) + ' 為已完成"><span class="status ' + (checked ? "complete" : "incomplete") + '">' + (checked ? "已完成" : "未完成") + '</span></span></span></label>'; }).join("") + '</div>';
+          return '<section class="category ' + (collapsed ? "is-collapsed" : "") + '"><div class="category-head"><h2>' + escapeHtml(category.name) + '</h2><div class="category-actions"><span class="category-count">' + completeCount + ' / ' + category.items.length + ' 已完成</span><button class="category-toggle" type="button" data-category-toggle="' + escapeHtml(categoryKey) + '" aria-expanded="' + (!collapsed) + '">' + (collapsed ? "展開" : "收合") + '</button></div></div>' + itemsHtml + '</section>';
         }).join("");
       }
 
       function render() { renderVersions(); renderCategories(); }
+
+      document.addEventListener("click", event => {
+        const toggle = event.target.closest("[data-category-toggle]");
+        if (!toggle) return;
+        const key = toggle.dataset.categoryToggle;
+        state.collapsedCategories[key] = !state.collapsedCategories[key];
+        renderCategories();
+      });
 
       document.addEventListener("change", event => {
         const checkbox = event.target.closest("[data-complete-key]");

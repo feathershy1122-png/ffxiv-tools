@@ -51,7 +51,7 @@ window.FFXIV_DUNGEON_HIGH_NAMES = {
     "極 艷翼蛇鳥殲滅戰",
     "極 佐拉加殲滅戰",
     "極 永恆女王殲滅戰",
-    "極 澤蓮妮婭殲滅戰",
+    "極 澤蓮尼婭殲滅戰",
     "極 The Ageless Necropolis（The Minstrel's Ballad: Necron's Embrace）",
     "極 Hell on Rails",
     "極 The Unmaking",
