@@ -36,10 +36,25 @@
 
   <script src="ffxiv-dungeon-list-data.js"></script>
   <script src="ffxiv-dungeon-list-ultimate-data.js"></script>
+  <script src="ffxiv-dungeon-high-data.js"></script>
   <script>
     (() => {
       const data = window.FFXIV_DUNGEON_LIST_DATA;
       if (window.FFXIV_DUNGEON_ULTIMATE && !data.some(version => version.id === "ultimate")) data.push({id:"ultimate",label:"絕本",categories:[window.FFXIV_DUNGEON_ULTIMATE]});
+      const highNamesByVersion = window.FFXIV_DUNGEON_HIGH_NAMES || {};
+      function splitHighDifficulty() {
+        data.forEach(version => {
+          const names = highNamesByVersion[version.id] || [];
+          const regularIndex = version.categories.findIndex(category => category.name === "討伐殲滅戰");
+          if (!names.length || regularIndex < 0) return;
+          const regular = version.categories[regularIndex];
+          const selected = regular.items.filter(item => names.includes(item.name));
+          if (!selected.length) return;
+          regular.items = regular.items.filter(item => !names.includes(item.name));
+          version.categories.splice(regularIndex + 1, 0, {name:"討伐殲滅戰：高難度",items:selected});
+        });
+      }
+      splitHighDifficulty();
       const cacheKey = "ffxiv-dungeon-list-completion-v1";
       let completionCache = {};
       try { completionCache = JSON.parse(window.localStorage.getItem(cacheKey) || "{}") || {}; } catch (error) { completionCache = {}; }
@@ -66,6 +81,23 @@
           completionCache[key.replace("v7::絕本::", "ultimate::絕本::")] = completionCache[key];
           delete completionCache[key];
           changed = true;
+        });
+        if (changed) saveCompletionCache();
+      }
+      function migrateHighDifficultyCache() {
+        let changed = false;
+        data.forEach(version => {
+          const high = version.categories.find(category => category.name === "討伐殲滅戰：高難度");
+          if (!high) return;
+          high.items.forEach((item, index) => {
+            const oldPrefix = version.id + "::討伐殲滅戰::";
+            const oldKey = Object.keys(completionCache).find(key => key.startsWith(oldPrefix) && key.endsWith("::" + item.name));
+            if (!oldKey) return;
+            const newKey = completionKey(version, high, item, index);
+            if (!Object.prototype.hasOwnProperty.call(completionCache, newKey)) completionCache[newKey] = completionCache[oldKey];
+            delete completionCache[oldKey];
+            changed = true;
+          });
         });
         if (changed) saveCompletionCache();
       }
@@ -110,6 +142,7 @@
       });
       searchInput.addEventListener("input", event => { state.query = event.target.value; renderCategories(); });
       migrateUltimateCache();
+      migrateHighDifficultyCache();
       render();
     })();
   </script>
