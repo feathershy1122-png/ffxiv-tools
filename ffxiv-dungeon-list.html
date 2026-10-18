@@ -73,7 +73,7 @@
       function allItems(version) { return version.categories.flatMap(category => category.items); }
       function completionKey(version, category, item, index) { return [version.id, category.name, index, item.name].join("::"); }
       function keyedItems(version, category) { return category.items.map((item, index) => ({...item, key:completionKey(version, category, item, index)})); }
-      function isComplete(key, initialValue) { return Object.prototype.hasOwnProperty.call(completionCache, key) ? Boolean(completionCache[key]) : initialValue; }
+      function isComplete(key, initialValue) { return Object.prototype.hasOwnProperty.call(completionCache, key) ? Boolean(completionCache[key]) : false; }
       function saveCompletionCache() { try { window.localStorage.setItem(cacheKey, JSON.stringify(completionCache)); } catch (error) {} }
       function migrateUltimateCache() {
         let changed = false;
