@@ -13,11 +13,14 @@
     @media(max-width:760px){.page{width:min(100% - 20px,600px);padding-top:14px}.topbar{margin-bottom:24px}.brand small{font-size:8px}.brand strong{font-size:14px}.back{font-size:11px;padding:7px 9px}.toolbar{display:block}.search-label{display:block;margin-bottom:7px}.search{width:100%}.source-note{display:block;margin:9px 0 0}.dungeon-list{grid-template-columns:1fr;padding:12px}.category-head{padding:14px}.dungeon-item{align-items:flex-start}}
     @media(max-width:430px){.panel{padding:14px}.choice{flex:1;text-align:center}.panel-heading{display:block}.total{display:inline-flex;margin-top:9px}.dungeon-item{display:block}.item-meta{margin-top:6px}}
   </style>
+  <style>
+    .dungeon-item{cursor:pointer}.check-wrap{display:inline-flex;align-items:center;gap:6px}.complete-toggle{appearance:none;width:18px;height:18px;margin:0;border:1px solid rgba(130,217,255,.55);border-radius:5px;background:rgba(255,255,255,.06);cursor:pointer}.complete-toggle:checked{border-color:var(--green);background:var(--green)}.complete-toggle:checked:after{content:"✓";display:block;color:#142b27;font-size:13px;font-weight:900;line-height:16px;text-align:center}.complete-toggle:focus-visible{outline:3px solid rgba(130,217,255,.3);outline-offset:2px}
+  </style>
 </head>
 <body>
   <main class="page">
     <header class="topbar"><div class="brand"><div class="mark">✦</div><div><small>FINAL FANTASY XIV</small><strong>個人快速查詢工具箱</strong></div></div><a class="back" href="index.html">返回工具箱</a></header>
-    <section class="hero"><p class="eyebrow">FF14 CONTENT INDEX</p><h1>副本列表</h1><p>依版本整理試算表中的副本、討伐殲滅戰、團隊任務與大型任務；保留文檔中的 TC 繁中名稱、等級與完成狀態。</p></section>
+    <section class="hero"><p class="eyebrow">FF14 CONTENT INDEX</p><h1>副本列表</h1><p>依版本整理試算表中的副本、討伐殲滅戰、團隊任務與大型任務；保留文檔中的 TC 繁中名稱與等級，完成狀態可自行勾選。</p></section>
 
     <section class="panel">
       <div class="panel-heading"><div><h2>選擇版本</h2><p id="versionHint">2版</p></div><div class="total" id="totalCount">0 個項目</div></div>
@@ -27,14 +30,20 @@
     <div class="toolbar"><label class="search-label" for="searchInput">搜尋副本</label><input class="search" id="searchInput" type="search" placeholder="輸入名稱關鍵字"><span class="source-note">資料來源：<a href="https://docs.google.com/spreadsheets/d/1RUmLWueCbewo4CG0DZqWqC9sUmdsYlB3_052mUX_gyA/edit?gid=350581232#gid=350581232" target="_blank" rel="noreferrer">人工校對試算表</a></span></div>
 
     <section class="category-list" id="categoryList"></section>
-    <div class="notice"><strong>資料說明：</strong>名稱、版本列表、分類、等級與完成狀態依照提供的試算表保留；「絕殲滅戰」分類依需求排除。</div>
+    <div class="notice"><strong>資料說明：</strong>名稱、版本列表、分類與等級依照提供的試算表保留；完成狀態可自行勾選，會以瀏覽器快取保存。「絕殲滅戰」以獨立的「絕本」分類呈現。</div>
     <p class="foot"><a href="index.html">返回 FF14 便利工具箱</a> · 本頁為玩家製作的非官方查詢工具。</p>
   </main>
 
   <script src="ffxiv-dungeon-list-data.js"></script>
+  <script src="ffxiv-dungeon-list-ultimate-data.js"></script>
   <script>
     (() => {
       const data = window.FFXIV_DUNGEON_LIST_DATA;
+      const v7 = data.find(version => version.id === "v7");
+      if (v7 && window.FFXIV_DUNGEON_ULTIMATE && !v7.categories.some(category => category.name === "絕本")) v7.categories.push(window.FFXIV_DUNGEON_ULTIMATE);
+      const cacheKey = "ffxiv-dungeon-list-completion-v1";
+      let completionCache = {};
+      try { completionCache = JSON.parse(window.localStorage.getItem(cacheKey) || "{}") || {}; } catch (error) { completionCache = {}; }
       const state = {versionId:data[0].id, query:""};
       const versionChoices = document.getElementById("versionChoices");
       const versionHint = document.getElementById("versionHint");
@@ -47,6 +56,10 @@
       }
       function currentVersion() { return data.find(version => version.id === state.versionId) || data[0]; }
       function allItems(version) { return version.categories.flatMap(category => category.items); }
+      function completionKey(version, category, item, index) { return [version.id, category.name, index, item.name].join("::"); }
+      function keyedItems(version, category) { return category.items.map((item, index) => ({...item, key:completionKey(version, category, item, index)})); }
+      function isComplete(key, initialValue) { return Object.prototype.hasOwnProperty.call(completionCache, key) ? Boolean(completionCache[key]) : initialValue; }
+      function saveCompletionCache() { try { window.localStorage.setItem(cacheKey, JSON.stringify(completionCache)); } catch (error) {} }
 
       function renderVersions() {
         versionChoices.innerHTML = data.map(version => '<button class="choice ' + (version.id === state.versionId ? "active" : "") + '" type="button" data-version="' + version.id + '" aria-pressed="' + (version.id === state.versionId) + '">' + escapeHtml(version.label) + '</button>').join("");
@@ -56,20 +69,29 @@
       function renderCategories() {
         const version = currentVersion();
         const query = state.query.trim().toLocaleLowerCase();
-        const visibleCategories = version.categories.map(category => ({...category, items:category.items.filter(item => !query || item.name.toLocaleLowerCase().includes(query))})).filter(category => category.items.length);
-        const items = allItems(version);
-        totalCount.textContent = query ? visibleCategories.reduce((count, category) => count + category.items.length, 0) + " / " + items.length + " 個項目" : items.length + " 個項目";
+        const visibleCategories = version.categories.map(category => ({...category, items:keyedItems(version, category).filter(item => !query || item.name.toLocaleLowerCase().includes(query))})).filter(category => category.items.length);
+        const items = version.categories.flatMap(category => keyedItems(version, category));
+        const completedCount = items.filter(item => isComplete(item.key, item.complete)).length;
+        totalCount.textContent = query ? visibleCategories.reduce((count, category) => count + category.items.length, 0) + " / " + items.length + " 個項目 · " + completedCount + " 已完成" : completedCount + " / " + items.length + " 已完成";
         if (!visibleCategories.length) {
           categoryList.innerHTML = '<div class="empty">找不到符合的副本名稱。</div>';
           return;
         }
         categoryList.innerHTML = visibleCategories.map(category => {
-          const completeCount = category.items.filter(item => item.complete).length;
-          return '<section class="category"><div class="category-head"><h2>' + escapeHtml(category.name) + '</h2><span class="category-count">' + completeCount + ' / ' + category.items.length + ' 已完成</span></div><ul class="dungeon-list">' + category.items.map(item => '<li class="dungeon-item"><span class="dungeon-name">' + escapeHtml(item.name) + '</span><span class="item-meta"><span class="level">Lv.' + item.level + '</span><span class="status ' + (item.complete ? "complete" : "incomplete") + '">' + (item.complete ? "已完成" : "未完成") + '</span></span></li>').join("") + '</ul></section>';
+          const completeCount = category.items.filter(item => isComplete(item.key, item.complete)).length;
+          return '<section class="category"><div class="category-head"><h2>' + escapeHtml(category.name) + '</h2><span class="category-count">' + completeCount + ' / ' + category.items.length + ' 已完成</span></div><div class="dungeon-list">' + category.items.map(item => { const checked = isComplete(item.key, item.complete); return '<label class="dungeon-item"><span class="dungeon-name">' + escapeHtml(item.name) + '</span><span class="item-meta"><span class="level">Lv.' + item.level + '</span><span class="check-wrap"><input class="complete-toggle" type="checkbox" data-complete-key="' + escapeHtml(item.key) + '"' + (checked ? ' checked' : '') + ' aria-label="標記 ' + escapeHtml(item.name) + ' 為已完成"><span class="status ' + (checked ? "complete" : "incomplete") + '">' + (checked ? "已完成" : "未完成") + '</span></span></span></label>'; }).join("") + '</div></section>';
         }).join("");
       }
 
       function render() { renderVersions(); renderCategories(); }
+
+      document.addEventListener("change", event => {
+        const checkbox = event.target.closest("[data-complete-key]");
+        if (!checkbox) return;
+        completionCache[checkbox.dataset.completeKey] = checkbox.checked;
+        saveCompletionCache();
+        renderCategories();
+      });
 
       document.addEventListener("click", event => {
         const button = event.target.closest("[data-version]");
