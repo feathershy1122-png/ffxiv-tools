@@ -39,8 +39,7 @@
   <script>
     (() => {
       const data = window.FFXIV_DUNGEON_LIST_DATA;
-      const v7 = data.find(version => version.id === "v7");
-      if (v7 && window.FFXIV_DUNGEON_ULTIMATE && !v7.categories.some(category => category.name === "絕本")) v7.categories.push(window.FFXIV_DUNGEON_ULTIMATE);
+      if (window.FFXIV_DUNGEON_ULTIMATE && !data.some(version => version.id === "ultimate")) data.push({id:"ultimate",label:"絕本",categories:[window.FFXIV_DUNGEON_ULTIMATE]});
       const cacheKey = "ffxiv-dungeon-list-completion-v1";
       let completionCache = {};
       try { completionCache = JSON.parse(window.localStorage.getItem(cacheKey) || "{}") || {}; } catch (error) { completionCache = {}; }
@@ -60,6 +59,16 @@
       function keyedItems(version, category) { return category.items.map((item, index) => ({...item, key:completionKey(version, category, item, index)})); }
       function isComplete(key, initialValue) { return Object.prototype.hasOwnProperty.call(completionCache, key) ? Boolean(completionCache[key]) : initialValue; }
       function saveCompletionCache() { try { window.localStorage.setItem(cacheKey, JSON.stringify(completionCache)); } catch (error) {} }
+      function migrateUltimateCache() {
+        let changed = false;
+        Object.keys(completionCache).forEach(key => {
+          if (!key.startsWith("v7::絕本::")) return;
+          completionCache[key.replace("v7::絕本::", "ultimate::絕本::")] = completionCache[key];
+          delete completionCache[key];
+          changed = true;
+        });
+        if (changed) saveCompletionCache();
+      }
 
       function renderVersions() {
         versionChoices.innerHTML = data.map(version => '<button class="choice ' + (version.id === state.versionId ? "active" : "") + '" type="button" data-version="' + version.id + '" aria-pressed="' + (version.id === state.versionId) + '">' + escapeHtml(version.label) + '</button>').join("");
@@ -100,6 +109,7 @@
         render();
       });
       searchInput.addEventListener("input", event => { state.query = event.target.value; renderCategories(); });
+      migrateUltimateCache();
       render();
     })();
   </script>
