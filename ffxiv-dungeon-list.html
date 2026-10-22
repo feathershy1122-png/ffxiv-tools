@@ -15,7 +15,9 @@
   </style>
   <style>
     .dungeon-item{cursor:pointer}.check-wrap{display:inline-flex;align-items:center;gap:6px}.complete-toggle{appearance:none;width:18px;height:18px;margin:0;border:1px solid rgba(130,217,255,.55);border-radius:5px;background:rgba(255,255,255,.06);cursor:pointer}.complete-toggle:checked{border-color:var(--green);background:var(--green)}.complete-toggle:checked:after{content:"✓";display:block;color:#142b27;font-size:13px;font-weight:900;line-height:16px;text-align:center}.complete-toggle:focus-visible{outline:3px solid rgba(130,217,255,.3);outline-offset:2px}
-    .category-actions{display:flex;align-items:center;gap:9px;flex:0 0 auto}.category-toggle{padding:4px 8px;border:1px solid rgba(130,217,255,.25);border-radius:999px;color:var(--blue);background:rgba(130,217,255,.06);font-size:10px;cursor:pointer}.category-toggle:hover,.category-toggle:focus-visible{border-color:rgba(130,217,255,.7);outline:none;background:rgba(130,217,255,.13)}
+    .category-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:6px;flex:0 0 auto}.category-toggle,.category-complete{padding:4px 8px;border:1px solid rgba(130,217,255,.25);border-radius:999px;color:var(--blue);background:rgba(130,217,255,.06);font-size:10px;cursor:pointer}.category-toggle:hover,.category-toggle:focus-visible,.category-complete:hover,.category-complete:focus-visible{border-color:rgba(130,217,255,.7);outline:none;background:rgba(130,217,255,.13)}.category-complete{border-color:rgba(129,228,188,.28);color:var(--green);background:rgba(129,228,188,.06)}.category-complete:hover,.category-complete:focus-visible{border-color:rgba(129,228,188,.75);background:rgba(129,228,188,.14)}
+    .summary-actions{display:flex;align-items:center;gap:8px}.all-toggle{padding:7px 10px;border:1px solid rgba(255,211,111,.34);border-radius:999px;color:var(--gold);background:rgba(255,211,111,.08);font-size:11px;cursor:pointer}.all-toggle:hover,.all-toggle:focus-visible{border-color:rgba(255,211,111,.8);outline:none;background:rgba(255,211,111,.16)}
+    @media(max-width:430px){.summary-actions{margin-top:9px}.summary-actions .total{margin-top:0}.category-head{display:block}.category-actions{justify-content:flex-start;margin-top:8px}}
   </style>
 </head>
 <body>
@@ -24,11 +26,11 @@
     <section class="hero"><p class="eyebrow">FF14 CONTENT INDEX</p><h1>副本列表</h1><p>依版本整理試算表中的副本、討伐殲滅戰、團隊任務與大型任務；保留文檔中的 TC 繁中名稱與等級，完成狀態可自行勾選。</p></section>
 
     <section class="panel">
-      <div class="panel-heading"><div><h2>選擇版本</h2><p id="versionHint">2版</p></div><div class="total" id="totalCount">0 個項目</div></div>
+      <div class="panel-heading"><div><h2>選擇版本</h2><p id="versionHint">2版</p></div><div class="summary-actions"><div class="total" id="totalCount">0 個項目</div><button class="all-toggle" id="toggleAllButton" type="button" aria-expanded="true">全收合</button></div></div>
       <div class="choice-row" id="versionChoices"></div>
     </section>
 
-    <div class="toolbar"><label class="search-label" for="searchInput">搜尋副本</label><input class="search" id="searchInput" type="search" placeholder="輸入名稱關鍵字"><span class="source-note">資料來源：作者由遊戲中人工校對</span></div>
+    <div class="toolbar"><label class="search-label" for="searchInput">搜尋副本</label><input class="search" id="searchInput" type="search" placeholder="輸入名稱關鍵字"><span class="source-note">資料來源：網路資料+作者由遊戲中人工校對</span></div>
 
     <section class="category-list" id="categoryList"></section>
     <div class="notice"><strong>資料說明：</strong>名稱、版本列表、分類與等級依照提供的試算表保留；完成狀態可自行勾選，會以瀏覽器快取保存。「絕殲滅戰」以獨立的「絕本」分類呈現。</div>
@@ -63,6 +65,7 @@
       const versionChoices = document.getElementById("versionChoices");
       const versionHint = document.getElementById("versionHint");
       const totalCount = document.getElementById("totalCount");
+      const toggleAllButton = document.getElementById("toggleAllButton");
       const categoryList = document.getElementById("categoryList");
       const searchInput = document.getElementById("searchInput");
 
@@ -71,10 +74,17 @@
       }
       function currentVersion() { return data.find(version => version.id === state.versionId) || data[0]; }
       function allItems(version) { return version.categories.flatMap(category => category.items); }
+      function categoryStateKey(version, category) { return version.id + "::" + category.name; }
       function completionKey(version, category, item, index) { return [version.id, category.name, index, item.name].join("::"); }
       function keyedItems(version, category) { return category.items.map((item, index) => ({...item, key:completionKey(version, category, item, index)})); }
       function isComplete(key, initialValue) { return Object.prototype.hasOwnProperty.call(completionCache, key) ? Boolean(completionCache[key]) : false; }
       function saveCompletionCache() { try { window.localStorage.setItem(cacheKey, JSON.stringify(completionCache)); } catch (error) {} }
+      function allCategoriesCollapsed(version) { return version.categories.length > 0 && version.categories.every(category => Boolean(state.collapsedCategories[categoryStateKey(version, category)])); }
+      function updateAllToggleButton() {
+        const collapsed = allCategoriesCollapsed(currentVersion());
+        toggleAllButton.textContent = collapsed ? "全展開" : "全收合";
+        toggleAllButton.setAttribute("aria-expanded", String(!collapsed));
+      }
       function migrateUltimateCache() {
         let changed = false;
         Object.keys(completionCache).forEach(key => {
@@ -115,22 +125,43 @@
         const items = version.categories.flatMap(category => keyedItems(version, category));
         const completedCount = items.filter(item => isComplete(item.key, item.complete)).length;
         totalCount.textContent = query ? visibleCategories.reduce((count, category) => count + category.items.length, 0) + " / " + items.length + " 個項目 · " + completedCount + " 已完成" : completedCount + " / " + items.length + " 已完成";
+        updateAllToggleButton();
         if (!visibleCategories.length) {
           categoryList.innerHTML = '<div class="empty">找不到符合的副本名稱。</div>';
           return;
         }
         categoryList.innerHTML = visibleCategories.map(category => {
           const completeCount = category.items.filter(item => isComplete(item.key, item.complete)).length;
-          const categoryKey = version.id + "::" + category.name;
+          const categoryKey = categoryStateKey(version, category);
           const collapsed = Boolean(state.collapsedCategories[categoryKey]);
           const itemsHtml = collapsed ? "" : '<div class="dungeon-list">' + category.items.map(item => { const checked = isComplete(item.key, item.complete); return '<label class="dungeon-item"><span class="dungeon-name">' + escapeHtml(item.name) + '</span><span class="item-meta"><span class="level">Lv.' + item.level + '</span><span class="check-wrap"><input class="complete-toggle" type="checkbox" data-complete-key="' + escapeHtml(item.key) + '"' + (checked ? ' checked' : '') + ' aria-label="標記 ' + escapeHtml(item.name) + ' 為已完成"><span class="status ' + (checked ? "complete" : "incomplete") + '">' + (checked ? "已完成" : "未完成") + '</span></span></span></label>'; }).join("") + '</div>';
-          return '<section class="category ' + (collapsed ? "is-collapsed" : "") + '"><div class="category-head"><h2>' + escapeHtml(category.name) + '</h2><div class="category-actions"><span class="category-count">' + completeCount + ' / ' + category.items.length + ' 已完成</span><button class="category-toggle" type="button" data-category-toggle="' + escapeHtml(categoryKey) + '" aria-expanded="' + (!collapsed) + '">' + (collapsed ? "展開" : "收合") + '</button></div></div>' + itemsHtml + '</section>';
+          return '<section class="category ' + (collapsed ? "is-collapsed" : "") + '"><div class="category-head"><h2>' + escapeHtml(category.name) + '</h2><div class="category-actions"><span class="category-count">' + completeCount + ' / ' + category.items.length + ' 已完成</span><button class="category-complete" type="button" data-category-complete="' + escapeHtml(categoryKey) + '" data-complete-value="true">全選已完成</button><button class="category-complete" type="button" data-category-complete="' + escapeHtml(categoryKey) + '" data-complete-value="false">全未完成</button><button class="category-toggle" type="button" data-category-toggle="' + escapeHtml(categoryKey) + '" aria-expanded="' + (!collapsed) + '">' + (collapsed ? "展開" : "收合") + '</button></div></div>' + itemsHtml + '</section>';
         }).join("");
       }
 
       function render() { renderVersions(); renderCategories(); }
 
       document.addEventListener("click", event => {
+        const completeAll = event.target.closest("[data-category-complete]");
+        if (completeAll) {
+          const version = currentVersion();
+          const key = completeAll.dataset.categoryComplete;
+          const category = version.categories.find(item => categoryStateKey(version, item) === key);
+          if (!category) return;
+          const value = completeAll.dataset.completeValue === "true";
+          category.items.forEach((item, index) => { completionCache[completionKey(version, category, item, index)] = value; });
+          saveCompletionCache();
+          renderCategories();
+          return;
+        }
+        const toggleAll = event.target.closest("#toggleAllButton");
+        if (toggleAll) {
+          const version = currentVersion();
+          const collapse = !allCategoriesCollapsed(version);
+          version.categories.forEach(category => { state.collapsedCategories[categoryStateKey(version, category)] = collapse; });
+          renderCategories();
+          return;
+        }
         const toggle = event.target.closest("[data-category-toggle]");
         if (!toggle) return;
         const key = toggle.dataset.categoryToggle;
