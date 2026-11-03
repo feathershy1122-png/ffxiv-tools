@@ -107,7 +107,12 @@
       }
 
       function matches(board) {
-        return state.every((type, index) => type === 'unknown' || boardValue(board, index) === TYPE_VALUES[type]);
+        return state.every((type, index) => {
+          if (type === 'unknown') return true;
+          const value = boardValue(board, index);
+          if (type === 'opened') return value === TYPE_VALUES.opened || value === TYPE_VALUES.fox;
+          return value === TYPE_VALUES[type];
+        });
       }
 
       function getMatchingBoards() {
