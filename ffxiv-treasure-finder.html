@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#15132c">
+  <title>FF14 藏寶圖位置查詢</title>
+  <style>
+    :root{color-scheme:dark;--line:rgba(224,188,255,.18);--text:#fff9ff;--muted:#b9accb;--gold:#ffd36f;--blue:#82d9ff;--pink:#ff8bd4;--shadow:0 24px 80px rgba(0,0,0,.32)}
+    *{box-sizing:border-box}body{margin:0;min-width:320px;color:var(--text);font-family:"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif;line-height:1.55;background:radial-gradient(circle at 8% 2%,rgba(161,86,196,.28),transparent 29%),radial-gradient(circle at 94% 12%,rgba(55,123,194,.2),transparent 27%),linear-gradient(160deg,#100e22,#171536 58%,#0e0c1e)}
+    body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.25;background-image:radial-gradient(rgba(255,211,111,.28) 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(to bottom,#000,transparent 72%)}
+    button{font:inherit}.page{position:relative;width:min(1500px,calc(100% - 28px));margin:auto;padding:22px 0 54px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:30px}.brand{display:flex;gap:12px;align-items:center}.mark{display:grid;place-items:center;width:44px;height:44px;border:1px solid rgba(255,211,111,.54);border-radius:15px;color:var(--gold);background:rgba(122,75,126,.3);font-size:23px}.brand small{display:block;color:var(--gold);font-size:10px;letter-spacing:.18em;font-weight:700}.brand strong{display:block;font-size:16px}.back,a{color:var(--blue);text-decoration:none}.back{padding:8px 12px;border:1px solid rgba(130,217,255,.22);border-radius:999px;font-size:12px}
+    .hero{margin-bottom:22px}.eyebrow{margin:0 0 7px;color:var(--gold);font-size:11px;letter-spacing:.16em;font-weight:800}.hero h1{margin:0 0 10px;font-size:clamp(31px,6vw,54px);line-height:1.06;letter-spacing:-.05em}.hero p{max-width:900px;margin:0;color:var(--muted);font-size:14px}.selector{padding:18px;border:1px solid var(--line);border-radius:22px;background:rgba(28,24,57,.77);box-shadow:var(--shadow)}.selector-block+.selector-block{margin-top:16px}.selector-label{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:9px;color:var(--gold);font-size:12px;font-weight:800;letter-spacing:.08em}.selector-label span{color:var(--muted);font-size:11px;font-weight:400;letter-spacing:0}.choice-row{display:flex;flex-wrap:wrap;gap:8px}.choice{padding:8px 12px;border:1px solid rgba(224,188,255,.2);border-radius:12px;color:#eadff5;background:rgba(255,255,255,.04);cursor:pointer;transition:transform .15s ease,border-color .15s ease,background .15s ease}.choice:hover,.choice:focus-visible{border-color:rgba(255,211,111,.66);outline:none;transform:translateY(-1px)}.choice.active{border-color:rgba(255,211,111,.78);color:#241a35;background:linear-gradient(135deg,#ffd36f,#ff9cd9);font-weight:800}.level-choice{display:flex;min-width:104px;flex-direction:column;align-items:flex-start}.level-choice small{color:var(--muted);font-size:10px}.level-choice.active small{color:#5e3d4e}.map-choice{display:flex;min-width:145px;flex-direction:column;align-items:flex-start}.map-choice small{color:var(--muted);font-size:10px}.map-choice.active small{color:#5e3d4e}
+    .workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(290px,340px);gap:18px;margin-top:18px;align-items:start}.panel{border:1px solid var(--line);border-radius:22px;background:linear-gradient(145deg,rgba(40,32,77,.92),rgba(21,19,49,.9));box-shadow:var(--shadow)}.gallery-panel,.map-panel{min-width:0;padding:18px}.map-panel{position:sticky;top:14px}.panel-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}.panel-heading h2{margin:0;font-size:19px}.panel-heading p{margin:3px 0 0;color:var(--muted);font-size:11px}.map-count{white-space:nowrap;padding:7px 10px;border:1px solid rgba(255,211,111,.26);border-radius:999px;color:var(--gold);background:rgba(255,211,111,.06);font-size:11px}
+    .treasure-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(156px,1fr));gap:12px}.treasure-card{min-width:0;padding:8px;border:1px solid rgba(224,188,255,.18);border-radius:15px;color:var(--text);background:rgba(255,255,255,.035);text-align:left;cursor:pointer;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}.treasure-card:hover,.treasure-card:focus-visible{transform:translateY(-2px);border-color:rgba(255,211,111,.55);outline:none}.treasure-card.active{border-color:rgba(255,211,111,.82);box-shadow:0 0 0 2px rgba(255,211,111,.15),0 12px 28px rgba(0,0,0,.24)}
+    .treasure-art{position:relative;display:block;aspect-ratio:1.15;border:1px solid rgba(88,58,26,.6);border-radius:10px;overflow:hidden;background-color:#bca16f;background-image:linear-gradient(rgba(224,194,136,.26),rgba(105,72,33,.16)),var(--map-image);background-size:cover,360% 360%;background-position:center,var(--crop-x,50%) var(--crop-y,50%);filter:sepia(.3) saturate(.85) contrast(1.05);box-shadow:inset 0 0 18px rgba(57,36,12,.45)}.treasure-art:after{content:"";position:absolute;inset:0;border:4px solid rgba(229,201,144,.32);border-radius:9px;box-shadow:inset 0 0 12px rgba(29,20,11,.4);pointer-events:none}.art-number{position:absolute;z-index:1;top:5px;left:7px;color:#fff9e8;font-size:22px;line-height:1;font-weight:900;text-shadow:0 2px 5px #31200f}.art-coord{position:absolute;z-index:1;top:7px;right:6px;padding:2px 5px;border-radius:5px;color:#fff9eb;background:rgba(31,25,19,.75);font-size:10px;font-weight:800;text-shadow:0 1px 3px #000}.art-cross{position:absolute;left:50%;top:50%;color:#d51d22;font-family:Arial,sans-serif;font-size:35px;font-weight:400;line-height:1;text-shadow:0 1px 1px #fff,0 0 4px rgba(255,255,255,.8);transform:translate(-50%,-57%)}.treasure-caption{display:block;padding:8px 2px 2px}.treasure-caption strong{display:block;overflow:hidden;font-size:12px;text-overflow:ellipsis;white-space:nowrap}.treasure-caption small{display:block;overflow:hidden;margin-top:2px;color:var(--muted);font-size:10px;text-overflow:ellipsis;white-space:nowrap}
+    .map-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}.map-head h2{margin:0;font-size:20px}.map-head p{margin:3px 0 0;color:var(--muted);font-size:11px}.map-wrap{position:relative;padding:0 0 22px 22px}.map-canvas{position:relative;aspect-ratio:1;border:1px solid rgba(255,211,111,.34);border-radius:13px;overflow:visible;background-color:#171942;background-image:linear-gradient(to right,rgba(130,217,255,.16) 1px,transparent 1px),linear-gradient(to bottom,rgba(130,217,255,.16) 1px,transparent 1px),var(--map-image,radial-gradient(circle at 20% 20%,#39305e,#171942 72%));background-size:10% 10%,10% 10%,cover;background-repeat:repeat,repeat,no-repeat;background-position:0 0,0 0,center;background-blend-mode:soft-light,soft-light,normal;box-shadow:inset 0 0 55px rgba(0,0,0,.32)}.axis{position:absolute;color:rgba(221,239,255,.72);font-size:9px;pointer-events:none}.axis-x{left:0;right:0;bottom:-20px;display:flex;justify-content:space-between}.axis-y{top:0;bottom:0;left:-21px;display:flex;flex-direction:column;justify-content:space-between}.marker{position:absolute;z-index:2;display:grid;place-items:center;width:22px;height:22px;padding:0;border:2px solid #fff;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 2px 9px rgba(0,0,0,.55);color:#fff;background:#53779e;font-size:10px;font-weight:900;cursor:pointer}.marker:hover,.marker:focus-visible{z-index:4;outline:3px solid rgba(130,217,255,.78);outline-offset:2px}.marker.selected{width:28px;height:28px;border-color:#fff;background:#be2729;font-size:21px;line-height:1}.map-detail{margin-top:13px;padding:11px 12px;border:1px solid rgba(130,217,255,.2);border-radius:12px;background:rgba(39,85,119,.13)}.map-detail strong{display:block;color:#f4e6c5;font-size:12px}.map-detail span{display:block;margin-top:4px;color:var(--muted);font-size:11px}.source-note{margin-top:18px;color:var(--muted);font-size:11px}.source-note a{color:var(--blue)}.foot{margin-top:22px;color:var(--muted);font-size:11px}.notice{margin-top:18px;padding:14px 16px;border:1px solid rgba(129,228,188,.23);border-radius:16px;color:#d8f9eb;background:rgba(71,142,121,.11);font-size:12px}.notice strong{color:#81e4bc}[hidden]{display:none!important}
+    @media(max-width:760px){.workspace{grid-template-columns:1fr}.map-panel{position:static;order:2}.treasure-gallery{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}@media(max-width:620px){.page{width:min(100% - 20px,560px);padding-top:14px}.topbar{margin-bottom:22px}.brand small{font-size:8px}.brand strong{font-size:14px}.back{font-size:11px;padding:7px 9px}.selector,.gallery-panel,.map-panel{padding:14px}.level-choice{min-width:calc(25% - 6px);flex:1;padding:7px 8px}.map-choice{min-width:calc(50% - 4px);flex:1}.treasure-gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.treasure-art{aspect-ratio:1.08}.panel-heading{align-items:center}.map-head{align-items:center}.map-count{font-size:10px;padding:6px 8px}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand"><div class="mark">⌖</div><div><small>FINAL FANTASY XIV</small><strong>藏寶圖位置查詢</strong></div></div>
+      <a class="back" href="index.html">← 回工具箱首頁</a>
+    </header>
+
+    <section class="hero">
+      <p class="eyebrow">TREASURE MAPS · G1 — G17</p>
+      <h1>選擇藏寶圖，對照地圖位置</h1>
+      <p>先選藏寶圖等級，再選區域。點選左側的小藏寶圖，右側大地圖會標出對應位置並顯示座標。</p>
+    </section>
+
+    <section class="selector" aria-label="藏寶圖等級與地圖選擇">
+      <div class="selector-block">
+        <div class="selector-label">第一層｜藏寶圖等級<span id="levelHint"></span></div>
+        <div class="choice-row" id="levelChoices"></div>
+      </div>
+      <div class="selector-block">
+        <div class="selector-label">第二層｜地圖區域<span id="mapHint"></span></div>
+        <div class="choice-row" id="mapChoices"></div>
+      </div>
+    </section>
+
+    <div class="workspace">
+      <section class="panel gallery-panel" aria-live="polite">
+        <div class="panel-heading">
+          <div><h2 id="galleryTitle">藏寶圖小圖</h2><p id="gallerySubtitle">點選小圖，在右側大地圖查看位置</p></div>
+          <div class="map-count" id="pointCount">尚未選取</div>
+        </div>
+        <div class="treasure-gallery" id="pointList"></div>
+      </section>
+
+      <aside class="panel map-panel" aria-live="polite">
+        <div class="map-head">
+          <div><h2 id="mapTitle">地圖位置</h2><p id="mapSubtitle">選取小藏寶圖查看位置</p></div>
+        </div>
+        <div class="map-wrap"><div class="map-canvas" id="mapCanvas" aria-label="藏寶點大地圖"></div></div>
+        <div class="map-detail" id="mapDetail"><strong>請先選取一個藏寶點</strong><span>點選左側的小藏寶圖後，這裡會顯示座標。</span></div>
+      </aside>
+    </div>
+
+    <div class="notice"><strong>地圖說明：</strong>小圖以藏寶點附近的區域地圖裁切並標出紅色 X；右側大地圖會顯示此區所有藏寶點，紅色標記代表目前選取的位置。</div>
+    <p class="source-note">座標資料：<a href="https://ffxivteamcraft.com/" target="_blank" rel="noreferrer">FFXIV Teamcraft</a>、<a href="https://xivapi.com/" target="_blank" rel="noreferrer">XIVAPI</a>。地圖素材由 XIVAPI 提供。功能方向參考 <a href="https://cycleapple.github.io/xiv-tc-treasure-finder/" target="_blank" rel="noreferrer">FFXIV 繁中藏寶圖查詢器</a>；此頁介面與程式為本工具箱獨立實作。</p>
+    <p class="foot"><a href="index.html">返回 FF14 便利工具箱</a> · 本頁為玩家製作的非官方查詢工具。</p>
+  </main>
+
+  <script src="ffxiv-treasure-data.js"></script>
+  <script>
+    (() => {
+      const data = window.FFXIV_TREASURE_DATA;
+      const state = { itemId: data.levels[0].itemId, mapId: null, pointId: null };
+      const levelByItem = new Map(data.levels.map(level => [level.itemId, level]));
+      const mapById = new Map(data.maps.map(map => [map.id, map]));
+      const levelChoices = document.getElementById("levelChoices");
+      const mapChoices = document.getElementById("mapChoices");
+      const levelHint = document.getElementById("levelHint");
+      const mapHint = document.getElementById("mapHint");
+      const galleryTitle = document.getElementById("galleryTitle");
+      const gallerySubtitle = document.getElementById("gallerySubtitle");
+      const pointCount = document.getElementById("pointCount");
+      const mapTitle = document.getElementById("mapTitle");
+      const mapSubtitle = document.getElementById("mapSubtitle");
+      const mapCanvas = document.getElementById("mapCanvas");
+      const mapDetail = document.getElementById("mapDetail");
+      const pointList = document.getElementById("pointList");
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, character => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[character]));
+      }
+
+      function activeLevel() { return levelByItem.get(state.itemId); }
+      function activeMap() { return mapById.get(state.mapId); }
+      function levelPoints() { return data.points.filter(point => point.itemId === state.itemId); }
+      function mapPoints() { return levelPoints().filter(point => point.mapId === state.mapId); }
+
+      function renderLevels() {
+        levelChoices.innerHTML = data.levels.map(level => {
+          const selected = level.itemId === state.itemId;
+          const party = level.partySize === 8 ? "8 人" : "單人";
+          return '<button class="choice level-choice ' + (selected ? "active" : "") + '" type="button" data-level="' + level.itemId + '" aria-pressed="' + selected + '"><span>' + escapeHtml(level.grade) + ' · ' + escapeHtml(level.name.replace(/^陳舊的/, "")) + '</span><small>' + escapeHtml(level.expansion) + ' · ' + party + '</small></button>';
+        }).join("");
+        const level = activeLevel();
+        levelHint.textContent = level.grade + "｜" + level.name + "｜採集 Lv." + level.gatheringLevel;
+      }
+
+      function renderMaps() {
+        const level = activeLevel();
+        const ids = [...new Set(levelPoints().map(point => point.mapId))].sort((a,b) => a-b);
+        if (!ids.includes(state.mapId)) {
+          state.mapId = ids[0] ?? null;
+          state.pointId = null;
+        }
+        mapChoices.innerHTML = ids.map(id => {
+          const map = mapById.get(id);
+          const count = levelPoints().filter(point => point.mapId === id).length;
+          const selected = id === state.mapId;
+          return '<button class="choice map-choice ' + (selected ? "active" : "") + '" type="button" data-map="' + id + '" aria-pressed="' + selected + '"><span>' + escapeHtml(map.name) + '</span><small>' + count + ' 個藏寶點</small></button>';
+        }).join("") || '<div class="empty">目前沒有這種藏寶圖的點位資料。</div>';
+        mapHint.textContent = ids.length + " 張地圖";
+      }
+
+      function toPercent(value, map) {
+        const factor = Number(map.sizeFactor) || 100;
+        return Math.max(0, Math.min(100, (value - 1) * factor / 40.96));
+      }
+
+      function cropPosition(value, map) {
+        const ratio = toPercent(value, map) / 100;
+        const scale = 3.6;
+        return Math.max(0, Math.min(100, (scale * ratio - 0.5) / (scale - 1) * 100));
+      }
+
+      function renderPoints() {
+        const level = activeLevel();
+        const map = activeMap();
+        const points = mapPoints().slice().sort((a,b) => Number(a.id.split(".").pop()) - Number(b.id.split(".").pop()));
+        if (!points.some(point => point.id === state.pointId)) state.pointId = points[0]?.id ?? null;
+        galleryTitle.textContent = level.grade + "｜" + map.name;
+        gallerySubtitle.textContent = "點選小藏寶圖，在右側大地圖對照位置";
+        pointCount.textContent = points.length + " 個藏寶點";
+        pointList.innerHTML = points.map((point,index) => {
+          const selected = point.id === state.pointId;
+          const cropX = cropPosition(point.x,map).toFixed(2);
+          const cropY = cropPosition(point.y,map).toFixed(2);
+          const image = "url(" + map.image + ")";
+          return '<button class="treasure-card ' + (selected ? "active" : "") + '" type="button" data-select-point="' + escapeHtml(point.id) + '" aria-pressed="' + selected + '" aria-label="藏寶點 ' + (index + 1) + '，X ' + point.x.toFixed(1) + '，Y ' + point.y.toFixed(1) + '"><span class="treasure-art" style="--map-image:' + image + ';--crop-x:' + cropX + '%;--crop-y:' + cropY + '%"><span class="art-number">' + (index + 1) + '</span><span class="art-coord">X: ' + point.x.toFixed(1) + '　Y: ' + point.y.toFixed(1) + '</span><span class="art-cross" aria-hidden="true">×</span></span><span class="treasure-caption"><strong>' + escapeHtml(map.name) + '</strong><small>藏寶點 ' + (index + 1) + ' · 座標附近地圖</small></span></button>';
+        }).join("");
+      }
+
+      function renderMap() {
+        const level = activeLevel();
+        const map = activeMap();
+        const points = mapPoints().slice().sort((a,b) => Number(a.id.split(".").pop()) - Number(b.id.split(".").pop()));
+        const selected = points.find(point => point.id === state.pointId) || points[0] || null;
+        mapCanvas.style.setProperty("--map-image", map && map.image ? 'url("' + map.image + '")' : "none");
+        mapTitle.textContent = map ? map.name : "地圖位置";
+        mapSubtitle.textContent = map ? level.grade + " · " + level.name : "選取小藏寶圖查看位置";
+        mapCanvas.innerHTML = '<div class="axis axis-x"><span>0</span><span>10</span><span>20</span><span>30</span><span>40</span></div><div class="axis axis-y"><span>0</span><span>10</span><span>20</span><span>30</span><span>40</span></div>' + points.map((point,index) => {
+          const active = selected && point.id === selected.id;
+          const x = toPercent(point.x,map).toFixed(2);
+          const y = toPercent(point.y,map).toFixed(2);
+          return '<button class="marker ' + (active ? "selected" : "") + '" type="button" style="left:' + x + '%;top:' + y + '%" data-select-point="' + escapeHtml(point.id) + '" aria-label="查看藏寶點 ' + (index + 1) + '，X ' + point.x.toFixed(1) + '，Y ' + point.y.toFixed(1) + '">' + (active ? "×" : (index + 1)) + '</button>';
+        }).join("");
+        if (!selected) {
+          mapDetail.innerHTML = "<strong>請先選取一個藏寶點</strong><span>點選左側的小藏寶圖後，這裡會顯示座標。</span>";
+          return;
+        }
+        const selectedIndex = points.findIndex(point => point.id === selected.id) + 1;
+        mapDetail.innerHTML = "<strong>藏寶點 " + selectedIndex + "　X: " + selected.x.toFixed(1) + "　Y: " + selected.y.toFixed(1) + "</strong><span>" + escapeHtml(map.name) + " · " + escapeHtml(level.grade + " " + level.name) + "</span>";
+      }
+
+      function render() {
+        renderLevels();
+        renderMaps();
+        renderPoints();
+        renderMap();
+      }
+
+      document.addEventListener("click", event => {
+        const levelButton = event.target.closest("[data-level]");
+        if (levelButton) {
+          state.itemId = Number(levelButton.dataset.level);
+          state.mapId = null;
+          state.pointId = null;
+          render();
+          return;
+        }
+        const mapButton = event.target.closest("[data-map]");
+        if (mapButton) {
+          state.mapId = Number(mapButton.dataset.map);
+          state.pointId = null;
+          render();
+          return;
+        }
+        const pointButton = event.target.closest("[data-select-point]");
+        if (pointButton) {
+          state.pointId = pointButton.dataset.selectPoint;
+          renderPoints();
+          renderMap();
+        }
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
