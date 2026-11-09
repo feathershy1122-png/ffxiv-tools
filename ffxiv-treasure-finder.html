@@ -17,6 +17,24 @@
     .map-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}.map-head h2{margin:0;font-size:20px}.map-head p{margin:3px 0 0;color:var(--muted);font-size:11px}.map-wrap{position:relative;padding:0 0 22px 22px}.map-canvas{position:relative;aspect-ratio:1;border:1px solid rgba(255,211,111,.34);border-radius:13px;overflow:visible;background-color:#171942;background-image:linear-gradient(to right,rgba(130,217,255,.16) 1px,transparent 1px),linear-gradient(to bottom,rgba(130,217,255,.16) 1px,transparent 1px),var(--map-image,radial-gradient(circle at 20% 20%,#39305e,#171942 72%));background-size:10% 10%,10% 10%,cover;background-repeat:repeat,repeat,no-repeat;background-position:0 0,0 0,center;background-blend-mode:soft-light,soft-light,normal;box-shadow:inset 0 0 55px rgba(0,0,0,.32)}.axis{position:absolute;color:rgba(221,239,255,.72);font-size:9px;pointer-events:none}.axis-x{left:0;right:0;bottom:-20px;display:flex;justify-content:space-between}.axis-y{top:0;bottom:0;left:-21px;display:flex;flex-direction:column;justify-content:space-between}.marker{position:absolute;z-index:2;display:grid;place-items:center;width:22px;height:22px;padding:0;border:2px solid #fff;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 2px 9px rgba(0,0,0,.55);color:#fff;background:#53779e;font-size:10px;font-weight:900;cursor:pointer}.marker:hover,.marker:focus-visible{z-index:4;outline:3px solid rgba(130,217,255,.78);outline-offset:2px}.marker.selected{width:28px;height:28px;border-color:#fff;background:#be2729;font-size:21px;line-height:1}.map-detail{margin-top:13px;padding:11px 12px;border:1px solid rgba(130,217,255,.2);border-radius:12px;background:rgba(39,85,119,.13)}.map-detail strong{display:block;color:#f4e6c5;font-size:12px}.map-detail span{display:block;margin-top:4px;color:var(--muted);font-size:11px}.source-note{margin-top:18px;color:var(--muted);font-size:11px}.source-note a{color:var(--blue)}.foot{margin-top:22px;color:var(--muted);font-size:11px}.notice{margin-top:18px;padding:14px 16px;border:1px solid rgba(129,228,188,.23);border-radius:16px;color:#d8f9eb;background:rgba(71,142,121,.11);font-size:12px}.notice strong{color:#81e4bc}[hidden]{display:none!important}
     @media(max-width:760px){.workspace{grid-template-columns:1fr}.map-panel{position:static;order:2}.treasure-gallery{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}@media(max-width:620px){.page{width:min(100% - 20px,560px);padding-top:14px}.topbar{margin-bottom:22px}.brand small{font-size:8px}.brand strong{font-size:14px}.back{font-size:11px;padding:7px 9px}.selector,.gallery-panel,.map-panel{padding:14px}.level-choice{min-width:calc(25% - 6px);flex:1;padding:7px 8px}.map-choice{min-width:calc(50% - 4px);flex:1}.treasure-gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.treasure-art{aspect-ratio:1.08}.panel-heading{align-items:center}.map-head{align-items:center}.map-count{font-size:10px;padding:6px 8px}}
   </style>
+  <style>
+    /* The frame image uses the user's in-game reference; point data stays below it. */
+    .treasure-gallery{grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:14px}
+    .treasure-art{aspect-ratio:1.12;overflow:hidden;clip-path:none;container-type:inline-size;background:transparent;filter:drop-shadow(0 4px 4px rgba(20,12,5,.72))}
+    .treasure-art:before{inset:0;clip-path:none;background-image:var(--map-image);background-size:1024% auto;background-position:var(--crop-x,50%) var(--crop-y,50%);filter:none;box-shadow:inset 0 0 12px rgba(44,28,10,.36)}
+    .treasure-art:after{display:none}
+    .art-frame{position:absolute;z-index:1;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}
+    .art-number,.art-coord{display:none}
+    .art-title{top:8cqw;left:5cqw;max-width:70%;font-size:5.5cqw;line-height:1.2}
+    .art-compass{display:none}
+    .art-cross{left:50%;top:50%;width:9cqw;height:10cqw}
+    .art-cross:before,.art-cross:after{left:3.8cqw;width:1.4cqw;height:10cqw}
+    .art-party{left:12cqw;bottom:4.3cqw;display:grid;place-items:center;min-width:5cqw;height:5.5cqw;padding:0;border:0;border-radius:1cqw;color:#fff;background:linear-gradient(90deg,rgba(64,45,21,.9),rgba(64,45,21,.68));font-size:4.8cqw;line-height:1;text-shadow:0 1px 2px #000}
+    .treasure-caption{padding:8px 3px 3px}
+    .treasure-caption strong{font-size:13px}
+    .treasure-caption small{font-size:10px}
+    @media(max-width:620px){.treasure-gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.treasure-art{aspect-ratio:1.12}}
+  </style>
 </head>
 <body>
   <main class="page">
@@ -60,7 +78,7 @@
       </aside>
     </div>
 
-    <div class="notice"><strong>地圖說明：</strong>小圖以藏寶點附近的區域地圖裁切，套上仿遊戲羊皮紙撕邊、區域名稱與人數標記；右側大地圖會顯示此區所有藏寶點，紅色標記代表目前選取的位置。</div>
+    <div class="notice"><strong>地圖說明：</strong>小圖顯示遊戲解讀後對應的地形線索，保留道具中的紅色記號與羊皮紙外觀；點選後右側大地圖會顯示對應位置。</div>
     <p class="source-note">座標資料：<a href="https://ffxivteamcraft.com/" target="_blank" rel="noreferrer">FFXIV Teamcraft</a>、<a href="https://xivapi.com/" target="_blank" rel="noreferrer">XIVAPI</a>。地圖素材由 XIVAPI 提供。功能方向參考 <a href="https://cycleapple.github.io/xiv-tc-treasure-finder/" target="_blank" rel="noreferrer">FFXIV 繁中藏寶圖查詢器</a>；此頁介面與程式為本工具箱獨立實作。</p>
     <p class="foot"><a href="index.html">返回 FF14 便利工具箱</a> · 本頁為玩家製作的非官方查詢工具。</p>
   </main>
@@ -72,6 +90,9 @@
       const state = { itemId: data.levels[0].itemId, mapId: null, pointId: null };
       const levelByItem = new Map(data.levels.map(level => [level.itemId, level]));
       const mapById = new Map(data.maps.map(map => [map.id, map]));
+      // XIVAPI map textures are 2048px; the reference clue window is about 200px wide.
+      const clueScaleX = 10.24;
+      const clueScaleY = clueScaleX * 1.12;
       const levelChoices = document.getElementById("levelChoices");
       const mapChoices = document.getElementById("mapChoices");
       const levelHint = document.getElementById("levelHint");
@@ -125,9 +146,8 @@
         return Math.max(0, Math.min(100, (value - 1) * factor / 40.96));
       }
 
-      function cropPosition(value, map) {
+      function cropPosition(value, map, scale) {
         const ratio = toPercent(value, map) / 100;
-        const scale = 3.6;
         return Math.max(0, Math.min(100, (scale * ratio - 0.5) / (scale - 1) * 100));
       }
 
@@ -141,10 +161,10 @@
         pointCount.textContent = points.length + " 個藏寶點";
         pointList.innerHTML = points.map((point,index) => {
           const selected = point.id === state.pointId;
-          const cropX = cropPosition(point.x,map).toFixed(2);
-          const cropY = cropPosition(point.y,map).toFixed(2);
+          const cropX = cropPosition(point.x,map,clueScaleX).toFixed(2);
+          const cropY = cropPosition(point.y,map,clueScaleY).toFixed(2);
           const image = "url(" + map.image + ")";
-          return '<button class="treasure-card ' + (selected ? "active" : "") + '" type="button" data-select-point="' + escapeHtml(point.id) + '" aria-pressed="' + selected + '" aria-label="藏寶點 ' + (index + 1) + '，X ' + point.x.toFixed(1) + '，Y ' + point.y.toFixed(1) + '"><span class="treasure-art" style="--map-image:' + image + ';--crop-x:' + cropX + '%;--crop-y:' + cropY + '%"><span class="art-number">' + (index + 1) + '</span><span class="art-title">' + escapeHtml(map.name) + '</span><span class="art-compass" aria-hidden="true">✥</span><span class="art-coord">X: ' + point.x.toFixed(1) + '　Y: ' + point.y.toFixed(1) + '</span><span class="art-cross" aria-hidden="true"></span><span class="art-party" aria-label="' + level.partySize + ' 人"><span class="art-person" aria-hidden="true"></span>' + level.partySize + '</span></span><span class="treasure-caption"><strong>' + escapeHtml(map.name) + '</strong><small>藏寶點 ' + (index + 1) + ' · 座標附近地圖</small></span></button>';
+          return '<button class="treasure-card ' + (selected ? "active" : "") + '" type="button" data-select-point="' + escapeHtml(point.id) + '" aria-pressed="' + selected + '" aria-label="藏寶點 ' + (index + 1) + '，X ' + point.x.toFixed(1) + '，Y ' + point.y.toFixed(1) + '"><span class="treasure-art" style="--map-image:' + image + ';--crop-x:' + cropX + '%;--crop-y:' + cropY + '%"><img class="art-frame" src="assets/treasure-map-frame.png" alt="" aria-hidden="true"><span class="art-title">' + escapeHtml(map.name) + '</span><span class="art-cross" aria-hidden="true"></span><span class="art-party" aria-label="' + level.partySize + ' 人">' + level.partySize + '</span></span><span class="treasure-caption"><strong>藏寶點 ' + (index + 1) + '　X: ' + point.x.toFixed(1) + '　Y: ' + point.y.toFixed(1) + '</strong><small>' + escapeHtml(map.name) + ' · 點選查看大地圖位置</small></span></button>';
         }).join("");
       }
 
