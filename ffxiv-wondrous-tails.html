@@ -9,7 +9,7 @@
   </style>
 </head>
 <body><main class="page">
-  <header class="topbar"><div class="brand"><div class="mark">✦</div><div><small>FF14 QUICK TOOL</small><strong>天書奇談預測器</strong></div></div><a class="back" href="ffxiv-tools.html">← 工具首頁</a></header>
+  <header class="topbar"><div class="brand"><div class="mark">✦</div><div><small>FF14 QUICK TOOL</small><strong>天書奇談預測器</strong></div></div><a class="back" href="ffxiv-tools.html#home-top">← 工具首頁</a></header>
   <section class="hero"><p class="eyebrow">WONDROUS TAILS</p><h1>先看機率，再決定怎麼放。</h1><p>點選目前已經放置的印記；系統會把剩下的印記等機率放入未標記格，列出完成 1、2、3 線的精確組合機率。</p></section>
   <div class="layout"><section class="panel"><h2>標記已放置的印記</h2><p class="helper">目前已放置：<strong id="placedLabel">0 / 9</strong>。再點一次可取消。</p><div class="grid-wrap"><div class="grid" id="grid"></div></div><div class="bar"><span>點格子＝標記印記</span><strong id="remainingLabel">還需放置 9 個</strong></div><div class="actions"><button class="action primary" id="resetBtn">清除重來</button><button class="action" id="undoBtn">復原</button><button class="action" id="redoBtn">重做</button></div></section>
     <aside class="panel result"><h2>連線機率預測</h2><p class="helper">以剩餘印記平均分布於未標記格計算。</p><div class="stats"><div class="stat"><strong id="p0">—</strong><span>0 線</span></div><div class="stat"><strong id="p1">—</strong><span>1 線</span></div><div class="stat"><strong id="p2">—</strong><span>2 線</span></div><div class="stat"><strong id="p3">—</strong><span>3 線</span></div></div><div class="advice" id="advice">請先點選已放置的印記。</div><div class="formula"><b>計算方式</b><br>從所有可能的剩餘印記位置中逐盤檢查 4×4 的橫線、直線與對角線，共 10 條線。</div><p class="source">玩法介面參考 <a href="https://ff14.tw/tools/wondrous-tails/index.html" target="_blank" rel="noreferrer">ff14.tw 天書奇談預測器</a>。</p></aside>
