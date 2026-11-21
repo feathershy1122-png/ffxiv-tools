@@ -52,9 +52,9 @@ window.FFXIV_DUNGEON_HIGH_NAMES = {
     "極 佐拉加殲滅戰",
     "極 永恆女王殲滅戰",
     "極 澤蓮尼婭殲滅戰",
-    "極 The Ageless Necropolis（The Minstrel's Ballad: Necron's Embrace）",
-    "極 Hell on Rails",
-    "極 The Unmaking",
-    "極 The Windward Wilds（Guardian Arkveld）"
+    "極 永恆黑暗殲滅戰",
+    "極 グラシャラボラス討滅戦（Hell on Rails (Extreme)）",
+    "極 エヌオー討滅戦（The Unmaking (Extreme)）",
+    "極護竜アルシュベルド狩猟戦（The Windward Wilds (Extreme)）"
   ]
 };

@@ -79,6 +79,35 @@
       function keyedItems(version, category) { return category.items.map((item, index) => ({...item, key:completionKey(version, category, item, index)})); }
       function isComplete(key, initialValue) { return Object.prototype.hasOwnProperty.call(completionCache, key) ? Boolean(completionCache[key]) : false; }
       function saveCompletionCache() { try { window.localStorage.setItem(cacheKey, JSON.stringify(completionCache)); } catch (error) {} }
+      const renamedCompletionItemsByVersion = {
+        v7: {
+          "護竜アルシュベルド狩猟戦（The Windward Wilds）": ["The Windward Wilds"],
+          "極護竜アルシュベルド狩猟戦（The Windward Wilds (Extreme)）": ["極 The Windward Wilds（Guardian Arkveld）"],
+          "滅 黑暗之雲激鬥戰": ["暗黑之雲誅滅戰"]
+        },
+        ultimate: {
+          "絶妖星乱舞（Dancing Mad (Ultimate)）": ["絕 妖星亂舞（Dancing Mad (Ultimate)）"]
+        }
+      };
+      function migrateRenamedItemCache() {
+        let changed = false;
+        data.forEach(version => {
+          const aliases = renamedCompletionItemsByVersion[version.id] || {};
+          version.categories.forEach(category => {
+            category.items.forEach((item, index) => {
+              (aliases[item.name] || []).forEach(oldName => {
+                const oldKey = Object.keys(completionCache).find(key => key.startsWith(version.id + "::") && key.endsWith("::" + oldName));
+                if (!oldKey) return;
+                const newKey = completionKey(version, category, item, index);
+                if (!Object.prototype.hasOwnProperty.call(completionCache, newKey)) completionCache[newKey] = completionCache[oldKey];
+                delete completionCache[oldKey];
+                changed = true;
+              });
+            });
+          });
+        });
+        if (changed) saveCompletionCache();
+      }
       function allCategoriesCollapsed(version) { return version.categories.length > 0 && version.categories.every(category => Boolean(state.collapsedCategories[categoryStateKey(version, category)])); }
       function updateAllToggleButton() {
         const collapsed = allCategoriesCollapsed(currentVersion());
@@ -185,6 +214,7 @@
       });
       searchInput.addEventListener("input", event => { state.query = event.target.value; renderCategories(); });
       migrateUltimateCache();
+      migrateRenamedItemCache();
       migrateHighDifficultyCache();
       render();
     })();
